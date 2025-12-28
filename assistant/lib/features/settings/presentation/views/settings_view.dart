@@ -20,8 +20,15 @@ class _SettingsViewState extends State<SettingsView> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings'), elevation: 0),
+      appBar: AppBar(
+        title: const Text('Settings'),
+        centerTitle: true,
+        elevation: 0,
+      ),
       body: Consumer<SettingsViewModel>(
         builder: (context, viewModel, child) {
           return SingleChildScrollView(
@@ -30,81 +37,193 @@ class _SettingsViewState extends State<SettingsView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Appearance',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 12),
-                  SwitchListTile(
-                    title: const Text('Dark Mode'),
-                    value: viewModel.settings.darkMode,
-                    onChanged: (_) {
-                      viewModel.toggleDarkMode();
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Language & Region',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButton<String>(
-                    isExpanded: true,
-                    value: viewModel.settings.language,
-                    items: ['en', 'es', 'fr', 'de', 'ja', 'zh']
-                        .map(
-                          (lang) => DropdownMenuItem(
-                            value: lang,
-                            child: Text(lang.toUpperCase()),
+                  // User Profile Section
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        if (!isDark)
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            spreadRadius: 1,
+                            blurRadius: 10,
+                            offset: const Offset(0, 1),
                           ),
-                        )
-                        .toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        viewModel.setLanguage(value);
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'AI Configuration',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 12),
-                  Text('Default AI Model'),
-                  DropdownButton<String>(
-                    isExpanded: true,
-                    value: viewModel.settings.defaultAiModel,
-                    items:
-                        [
-                              'gpt-3.5-turbo',
-                              'gpt-4',
-                              'gemini-pro',
-                              'claude-3-sonnet-20240229',
-                            ]
-                            .map(
-                              (model) => DropdownMenuItem(
-                                value: model,
-                                child: Text(model),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                         const CircleAvatar(
+                          radius: 30,
+                          backgroundImage: AssetImage('assets/onborading/assistant.png'), // Placeholder or use network image
+                          // child: Icon(Icons.person, size: 30),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Ali Danish Afzali ',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
-                            )
-                            .toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        viewModel.setDefaultAIModel(value);
-                      }
-                    },
+                              Text(
+                                'alidanishafzali21@gmail.com',
+                                style: TextStyle(
+                                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        OutlinedButton(
+                          onPressed: () {
+                            // Navigate to Edit Profile
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                            side: BorderSide(color: isDark ? Colors.grey : Colors.grey[300]!),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          child: Text(
+                            'Edit Profile',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 24),
+
                   Text(
-                    'API Keys',
-                    style: Theme.of(context).textTheme.headlineSmall,
+                    'Assistant Preferences',
+                    style: TextStyle(
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  const SizedBox(height: 12),
-                  _buildAPIKeyItem(context, 'OpenAI', 'openai'),
-                  _buildAPIKeyItem(context, 'Google Gemini', 'gemini'),
-                  _buildAPIKeyItem(context, 'HuggingFace', 'huggingface'),
-                  _buildAPIKeyItem(context, 'Anthropic', 'anthropic'),
+                  const SizedBox(height: 8),
+
+                  Container(
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildSettingsItem(
+                          context,
+                          'Tone',
+                          'Friendly',
+                          onTap: () {
+                             _showToneSelection(context);
+                          },
+                        ),
+                        _buildDivider(isDark),
+                        _buildSettingsItem(
+                          context,
+                          'Response Length',
+                          'Medium',
+                          onTap: () {
+                            _showResponseLengthSelection(context);
+                          },
+                        ),
+                        _buildDivider(isDark),
+                        _buildSettingsItem(
+                          context,
+                          'Language',
+                          'English', // Map viewModel.settings.language to readable name
+                          onTap: () {
+                            // Show language selection
+                          },
+                        ),
+                        _buildDivider(isDark),
+                         ListTile(
+                          title: const Text('AI Mode'),
+                          trailing: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.teal,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Smart',
+                                  style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(width: 4),
+                                Icon(Icons.arrow_forward_ios, size: 10, color: Colors.white),
+                              ],
+                            ),
+                          ),
+                          onTap: () {
+                             // Show AI mode selection
+                          },
+                         ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  Container(
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildSimpleSettingsItem(context, 'Notifications'),
+                        _buildDivider(isDark),
+                        _buildSimpleSettingsItem(context, 'Privacy & Security'),
+                         _buildDivider(isDark),
+                        _buildSimpleSettingsItem(context, 'Appearance', onTap: () {
+                            viewModel.toggleDarkMode();
+                        }),
+                        _buildDivider(isDark),
+                        _buildSimpleSettingsItem(context, 'Storage & Performance'),
+                        _buildDivider(isDark),
+                        _buildSimpleSettingsItem(context, 'Help & About'),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Handle logout
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Log Out',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                   const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -114,52 +233,61 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 
-  Widget _buildAPIKeyItem(BuildContext context, String label, String service) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        title: Text(label),
-        trailing: IconButton(
-          icon: const Icon(Icons.edit),
-          onPressed: () {
-            _showAPIKeyDialog(context, label, service);
-          },
-        ),
-      ),
-    );
-  }
-
-  void _showAPIKeyDialog(BuildContext context, String label, String service) {
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Add $label API Key'),
-        content: TextField(
-          controller: controller,
-          obscureText: true,
-          decoration: InputDecoration(
-            labelText: '$label API Key',
-            border: const OutlineInputBorder(),
+  Widget _buildSettingsItem(BuildContext context, String title, String value, {VoidCallback? onTap}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return ListTile(
+      title: Text(title),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            value,
+            style: TextStyle(
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
+              fontSize: 14,
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              context.read<SettingsViewModel>().saveAPIKey(
-                service,
-                controller.text,
-              );
-              Navigator.pop(context);
-            },
-            child: const Text('Save'),
+          const SizedBox(width: 8),
+          Icon(
+            Icons.arrow_forward_ios,
+            size: 14,
+            color: isDark ? Colors.grey[600] : Colors.grey[400],
           ),
         ],
       ),
+      onTap: onTap,
     );
+  }
+  
+    Widget _buildSimpleSettingsItem(BuildContext context, String title, {VoidCallback? onTap}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return ListTile(
+      title: Text(title),
+      trailing: Icon(
+            Icons.arrow_forward_ios,
+            size: 14,
+            color: isDark ? Colors.grey[600] : Colors.grey[400],
+          ),
+      onTap: onTap,
+    );
+  }
+
+
+  Widget _buildDivider(bool isDark) {
+    return Divider(
+      height: 1,
+      thickness: 1,
+      indent: 16,
+      endIndent: 16,
+      color: isDark ? Colors.grey[800] : Colors.grey[100],
+    );
+  }
+
+  void _showToneSelection(BuildContext context) {
+    // Implementation for Tone Selection BottomSheet or Dialog
+  }
+  
+  void _showResponseLengthSelection(BuildContext context) {
+    // Implementation for Response Length Selection
   }
 }
